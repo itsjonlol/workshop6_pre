@@ -162,7 +162,7 @@ public class BoardGameController {
         
     }
     @GetMapping("/boardgames")
-    public ResponseEntity<List> showAllBoardGames() {
+    public ResponseEntity<List<BoardGame>>showAllBoardGames() {
         List<BoardGame> boardGamesList = boardGameService.getAllValues();
         return ResponseEntity.ok(boardGamesList);
 
