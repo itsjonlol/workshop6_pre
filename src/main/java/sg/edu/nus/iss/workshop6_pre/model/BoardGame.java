@@ -51,7 +51,7 @@ public class BoardGame {
 
     @Override
     public String toString() {
-        return name + "," + players + "," + genre;
+        return id + "," + name + "," + players + "," + genre;
     }
 
     public String getId() {
