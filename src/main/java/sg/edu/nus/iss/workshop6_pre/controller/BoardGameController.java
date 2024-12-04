@@ -41,8 +41,13 @@ public class BoardGameController {
     public ResponseEntity<String> postBoardGame(@RequestParam("file") MultipartFile jsonFile) throws IOException {
         
         //added to account for file upload
+        //convert file content to string
         String fileContent = new String(jsonFile.getBytes());
         List<BoardGame> boardGames = boardGameService.readFile(fileContent);
+
+        // Parse JSON content -> if i want to do it straight in the controller
+        // JsonReader reader = Json.createReader(new StringReader(fileContent)); // dont need the bytes like darryl's method
+        // JsonArray boardGamesJsonArray = reader.readArray();
         
         // BoardGame boardGame = new BoardGame(boardGameJson.getString("name"),boardGameJson.getInt("players"),boardGameJson.getString("genre"));
         for (BoardGame boardGame : boardGames) {
