@@ -1,6 +1,7 @@
 package sg.edu.nus.iss.workshop6_pre.controller;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
@@ -23,6 +25,7 @@ import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
 import sg.edu.nus.iss.workshop6_pre.model.BoardGame;
 import sg.edu.nus.iss.workshop6_pre.service.BoardGameService;
+import sg.edu.nus.iss.workshop6_pre.util.Util;
 
 
 @RestController
@@ -35,20 +38,21 @@ public class BoardGameController {
     int updateCount = 0;
     
     @PostMapping("/boardgame")
-    public ResponseEntity<String> postBoardGame(@RequestBody String boardGameJsonString) {
+    public ResponseEntity<String> postBoardGame(@RequestParam("file") MultipartFile jsonFile) throws IOException {
         
-        //convert the string formatted json into json object
-        InputStream is = new ByteArrayInputStream(boardGameJsonString.getBytes());
-        JsonReader reader = Json.createReader(is);
-        JsonObject boardGameJson = reader.readObject();
+        //added to account for file upload
+        String fileContent = new String(jsonFile.getBytes());
+        List<BoardGame> boardGames = boardGameService.readFile(fileContent);
         
-        BoardGame boardGame = new BoardGame(boardGameJson.getString("name"),boardGameJson.getInt("players"),boardGameJson.getString("genre"));
-       
-        boardGameService.saveBoardGame(boardGame);
+        // BoardGame boardGame = new BoardGame(boardGameJson.getString("name"),boardGameJson.getInt("players"),boardGameJson.getString("genre"));
+        for (BoardGame boardGame : boardGames) {
+            boardGameService.saveBoardGame(boardGame);
+
+        }
         
         JsonObject responseJson  = Json.createObjectBuilder()
                                         .add("insert_count",1)
-                                        .add("id",boardGame.getId())
+                                        .add("id",Util.redisKey)
                                         .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(responseJson.toString());
         
@@ -82,13 +86,15 @@ public class BoardGameController {
         }
         BoardGame boardGame = boardGameService.getBoardGameById(boardGameId);
         JsonObject responseJson = Json.createObjectBuilder()
-                              .add("id",boardGame.getId())
+                              .add("gid",boardGame.getGid())
                               .add("name",boardGame.getName())
-                              .add("players",boardGame.getPlayers())
-                              .add("genre",boardGame.getGenre())
+                              .add("year",boardGame.getYear())
+                              .add("ranking",boardGame.getRanking())
+                              .add("users_rated",boardGame.getUsers_rated())
+                              .add("url",boardGame.getUrl())
+                              .add("image",boardGame.getImage())
                               .build();
         return ResponseEntity.status(HttpStatus.OK).body(responseJson.toString());
-        
         
     }
 
@@ -109,11 +115,27 @@ public class BoardGameController {
                 JsonObject boardGameJson;
                 JsonReader reader = Json.createReader(is);
                 boardGameJson = reader.readObject();
-                BoardGame boardGame = new BoardGame(boardGameId,boardGameJson.getString("name"),boardGameJson.getInt("players"),boardGameJson.getString("genre"));
+                // BoardGame boardGame = new BoardGame(boardGameId,boardGameJson.getString("name"),boardGameJson.getInt("players"),boardGameJson.getString("genre"));
+                BoardGame boardGame = new BoardGame();
+                Integer gid = boardGameJson.getInt("gid");
+                String name = boardGameJson.getString("name");
+                Integer year = boardGameJson.getInt("year");
+                Integer ranking = boardGameJson.getInt("ranking");
+                Integer users_rated = boardGameJson.getInt("users_rated");
+                String url = boardGameJson.getString("url");
+                String image = boardGameJson.getString("image");
+                boardGame.setGid(gid);
+                boardGame.setName(name);
+                boardGame.setRanking(ranking);
+                boardGame.setYear(year);
+                boardGame.setUsers_rated(users_rated);
+                boardGame.setUrl(url);
+                boardGame.setImage(image);
+            
                 boardGameService.saveBoardGame(boardGame);
                 JsonObject responseJson  = Json.createObjectBuilder()
                                                 .add("insert_count",1)
-                                                .add("id",boardGame.getId())
+                                                .add("id",boardGame.getGid())
                                                 .build();
                 return ResponseEntity.status(HttpStatus.OK).body(responseJson.toString());
                     
@@ -126,13 +148,27 @@ public class BoardGameController {
             JsonReader reader = Json.createReader(is);
             boardGameJson = reader.readObject();
             
-            BoardGame boardGame = new BoardGame(boardGameId,boardGameJson.getString("name"),boardGameJson.getInt("players"),boardGameJson.getString("genre"));
-            
+            // BoardGame boardGame = new BoardGame(boardGameId,boardGameJson.getString("name"),boardGameJson.getInt("players"),boardGameJson.getString("genre"));
+            BoardGame boardGame = new BoardGame();
+            Integer gid = boardGameJson.getInt("gid");
+            String name = boardGameJson.getString("name");
+            Integer year = boardGameJson.getInt("year");
+            Integer ranking = boardGameJson.getInt("ranking");
+            Integer users_rated = boardGameJson.getInt("users_rated");
+            String url = boardGameJson.getString("url");
+            String image = boardGameJson.getString("image");
+            boardGame.setGid(gid);
+            boardGame.setName(name);
+            boardGame.setRanking(ranking);
+            boardGame.setYear(year);
+            boardGame.setUsers_rated(users_rated);
+            boardGame.setUrl(url);
+            boardGame.setImage(image);
             boardGameService.updateBoardGame(boardGame);
             updateCount++;
             JsonObject responseJson  = Json.createObjectBuilder()
                                             .add("update_count",updateCount)
-                                            .add("id",boardGame.getId())
+                                            .add("id",boardGame.getGid())
                                             .build();
             return ResponseEntity.status(HttpStatus.OK).body(responseJson.toString());
                 
@@ -157,24 +193,24 @@ public class BoardGameController {
         return ResponseEntity.status(HttpStatus.OK).body(responseJson.toString());
         
     }
-    // @GetMapping("/boardgames")
-    // public ResponseEntity<List<BoardGame>>showAllBoardGames() {
-    //     List<BoardGame> boardGamesList = boardGameService.getAllBoardGames();
-    //     return ResponseEntity.ok(boardGamesList);
+  
 
-    // }
+    
     @GetMapping("/boardgames")
     public ResponseEntity<String> showAllGames() {
         List<BoardGame> boardGamesList = boardGameService.getAllBoardGames();
         JsonArrayBuilder jab = Json.createArrayBuilder();
-
+        
         for (BoardGame boardGame : boardGamesList) {
             JsonObject boardGameJson = Json.createObjectBuilder()
-                                           .add("id",boardGame.getId())
-                                           .add("name",boardGame.getName())
-                                           .add("players",boardGame.getPlayers())
-                                           .add("genre",boardGame.getGenre())
-                                           .build();
+                                            .add("gid",boardGame.getGid())
+                                            .add("name",boardGame.getName())
+                                            .add("year",boardGame.getYear())
+                                            .add("ranking",boardGame.getRanking())
+                                            .add("users_rated",boardGame.getUsers_rated())
+                                            .add("url",boardGame.getUrl())
+                                            .add("image",boardGame.getImage())
+                                            .build();
              jab.add(boardGameJson);
         }
 
@@ -183,5 +219,11 @@ public class BoardGameController {
 
     }
 
+    @GetMapping("/boardgames2") //same as /boardgames, just easier to read. can wrap around a responseentity too
+    public ResponseEntity<List<BoardGame>> showAllGames2() {
+        List<BoardGame> boardGamesList = boardGameService.getAllBoardGames();
+        return ResponseEntity.status(HttpStatus.OK).body(boardGamesList);
+
+    }
 
 }
