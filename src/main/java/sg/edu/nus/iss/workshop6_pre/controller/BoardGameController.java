@@ -87,7 +87,7 @@ public class BoardGameController {
                                        .add("error","BoardGame not found")
                                        .build();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).header("Content-Type", "application/json").body(errorJson.toString());
-            
+            //.header("Content-Type","text/html")
         }
         BoardGame boardGame = boardGameService.getBoardGameById(boardGameId);
         JsonObject responseJson = Json.createObjectBuilder()
