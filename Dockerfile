@@ -1,5 +1,5 @@
 # Use the Maven image as the base
-FROM maven:3.9.9-eclipse-temurin-23
+FROM maven:3.9.9-eclipse-temurin-23 AS compiler
 
 # Set up labels for metadata
 LABEL MAINTAINER="jonathan"
@@ -22,8 +22,8 @@ COPY src src
 RUN chmod +x mvnw
 
 # Build the application
-RUN ./mvnw package -Dmaven.test.skip=true
-
+#RUN ./mvnw package -Dmaven.test.skip=true
+RUN mvn package -Dmaven.test.skip=true
 # Set the server port
 ENV SERVER_PORT=4000
 
@@ -35,3 +35,22 @@ ENTRYPOINT SERVER_PORT=${SERVER_PORT} java -jar target/workshop6_pre-0.0.1-SNAPS
 
 #docker build -t itsjonlol/workshop6_pre:0.0.1 . 
 #docker run -d -t -p 4000:4000 itsjonlol/workshop5_pre:0.0.1 
+
+
+#Stage 2
+FROM maven:3.9.9-eclipse-temurin-23
+
+ARG DEPLOY_DIR=/code_folder
+
+WORKDIR ${DEPLOY_DIR}
+#change the names here
+COPY --from=compiler /app/target/workshop6_pre-0.0.1-SNAPSHOT.jar workshop6_pre.jar
+
+# Set the server port
+ENV SERVER_PORT=4000
+
+# Expose the port
+EXPOSE ${SERVER_PORT}
+#change the name here
+# Run the application
+ENTRYPOINT SERVER_PORT=${SERVER_PORT} java -jar workshop6_pre.jar
