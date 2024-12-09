@@ -59,7 +59,7 @@ public class BoardGameController {
                                         .add("insert_count",1)
                                         .add("id",Util.redisKey)
                                         .build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseJson.toString());
+        return ResponseEntity.status(HttpStatus.CREATED).header("Content-Type", "application/json").body(responseJson.toString());
         
             // return new ResponseEntity<Book>(savedBook, HttpStatus.OK);
             // JsonReader reader = Json.createReader(is);
@@ -86,7 +86,7 @@ public class BoardGameController {
             JsonObject errorJson = Json.createObjectBuilder()
                                        .add("error","BoardGame not found")
                                        .build();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorJson.toString());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).header("Content-Type", "application/json").body(errorJson.toString());
             
         }
         BoardGame boardGame = boardGameService.getBoardGameById(boardGameId);
@@ -99,7 +99,7 @@ public class BoardGameController {
                               .add("url",boardGame.getUrl())
                               .add("image",boardGame.getImage())
                               .build();
-        return ResponseEntity.status(HttpStatus.OK).body(responseJson.toString());
+        return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(responseJson.toString());
         
     }
 
@@ -113,7 +113,7 @@ public class BoardGameController {
                 JsonObject errorJson = Json.createObjectBuilder()
                                        .add("error","BoardGame does not exist. Bad request.Try writing ?upsert=true")
                                        .build();
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorJson.toString());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).header("Content-Type", "application/json").body(errorJson.toString());
             } else {
 
                 InputStream is = new ByteArrayInputStream(boardGameJsonString.getBytes());
@@ -142,7 +142,7 @@ public class BoardGameController {
                                                 .add("insert_count",1)
                                                 .add("id",boardGame.getGid())
                                                 .build();
-                return ResponseEntity.status(HttpStatus.OK).body(responseJson.toString());
+                return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(responseJson.toString());
                     
             }
             
@@ -175,7 +175,7 @@ public class BoardGameController {
                                             .add("update_count",updateCount)
                                             .add("id",boardGame.getGid())
                                             .build();
-            return ResponseEntity.status(HttpStatus.OK).body(responseJson.toString());
+            return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(responseJson.toString());
                 
         }
 
@@ -188,15 +188,15 @@ public class BoardGameController {
             JsonObject errorJson = Json.createObjectBuilder()
                                        .add("error","BoardGame not found")
                                        .build();
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorJson.toString());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).header("Content-Type", "application/json").body(errorJson.toString());
             
         }
         boardGameService.deleteBoardGame(boardGameId);
         JsonObject responseJson = Json.createObjectBuilder()
                               .add("message","BoardGame has been deleted")
                               .build();
-        return ResponseEntity.status(HttpStatus.OK).body(responseJson.toString());
-        
+        return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(responseJson.toString());
+        //ensure u add the header
     }
   
 
@@ -220,10 +220,10 @@ public class BoardGameController {
         }
 
         String boardGameJsonArrayString = jab.build().toString();
-        return ResponseEntity.status(HttpStatus.OK).body(boardGameJsonArrayString);
+        return ResponseEntity.status(HttpStatus.OK).header("Content-Type", "application/json").body(boardGameJsonArrayString);
 
     }
-
+    //automtically application/json type
     @GetMapping("/boardgames2") //same as /boardgames, just easier to read. can wrap around a responseentity too
     public ResponseEntity<List<BoardGame>> showAllGames2() {
         List<BoardGame> boardGamesList = boardGameService.getAllBoardGames();
