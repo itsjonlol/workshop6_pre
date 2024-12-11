@@ -1,4 +1,4 @@
-package sg.edu.nus.iss.workshop6_pre.controller;
+package sg.edu.nus.iss.workshop6_pre.restcontroller;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

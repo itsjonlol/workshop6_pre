@@ -1,4 +1,4 @@
-package sg.edu.nus.iss.workshop6_pre.controller;
+package sg.edu.nus.iss.workshop6_pre.restcontroller;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -105,7 +105,7 @@ public class BoardGameController {
 
     @PutMapping("/boardgame/{boardgameid}") //http://localhost:4000/api/boardgame/10e55?upsert=true
     public ResponseEntity<String> updateBoardGame(@PathVariable("boardgameid") String boardGameId, @RequestBody String boardGameJsonString
-                                                    , @RequestParam(value = "upsert",required = false,defaultValue="false") Boolean upsert) {
+                                                    , @RequestParam(name = "upsert",required = false,defaultValue="false") Boolean upsert) {
 
                                                         
         if (!boardGameService.checkIfBoardGameExists(boardGameId)) {
@@ -186,7 +186,7 @@ public class BoardGameController {
         //DELETE regardless whether id even existed in the first place
         if (!boardGameService.checkIfBoardGameExists(boardGameId)) {
             JsonObject errorJson = Json.createObjectBuilder()
-                                       .add("error","BoardGame not found")
+                                       .add("errorbro","BoardGame not found")
                                        .build();
             return ResponseEntity.status(HttpStatus.NOT_FOUND).header("Content-Type", "application/json").body(errorJson.toString());
             
